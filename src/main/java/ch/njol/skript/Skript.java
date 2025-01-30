@@ -60,6 +60,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.event.server.ServerLoadEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginDescriptionFile;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -124,6 +125,8 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
+
+import static io.papermc.lib.PaperLib.isPaper;
 
 // TODO meaningful error if someone uses an %expression with percent signs% outside of text or a variable
 
@@ -683,8 +686,22 @@ public final class Skript extends JavaPlugin implements Listener {
 					if (TestMode.DEV_MODE) {
 						runTests(); // Dev mode doesn't need a delay
 					} else {
-						Bukkit.getWorlds().get(0).getChunkAtAsync(100, 100).thenRun(() -> runTests());
-					}
+						World world = Bukkit.getWorlds().get(0);
+						if (isPaper())
+							world.getChunkAtAsync(100, 100).thenRun(() -> runTests());
+						else {
+							Bukkit.getServer().getPluginManager().registerEvents(new Listener() {
+								@EventHandler
+								public void onChunkLoad(ChunkLoadEvent event) {
+									Chunk chunk = event.getChunk();
+									if (chunk.getX() == 100 && chunk.getZ() == 100) {
+										runTests();
+										event.getHandlers().unregister(this);
+									}
+								}
+							}, Skript.getInstance());
+							world.getChunkAt(100, 100);
+						}					}
 				}
 
 				Skript.metrics = new Metrics(Skript.getInstance(), 722); // 722 is our bStats plugin ID
