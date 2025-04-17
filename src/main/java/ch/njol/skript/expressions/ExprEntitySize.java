@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 @Name("Entity Size")
 @Description({
 	"Changes the entity size of slimes and phantoms. This is not the same as changing the scale attribute of an entity.",
-	"When changing the size of a slime, its health is fully resorted and will have changes done to its max health, movement speed and attack damage.",
+	"When changing the size of a slime, its health is fully restored and will have changes done to its max health, movement speed and attack damage.",
 	"The default minecraft size of a slime is anywhere between 0 and 2, with a maximum of 126.",
 	"The default minecraft size of a phantom is 0 with a maximum size of 64."
 })
